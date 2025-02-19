@@ -46,7 +46,8 @@ testFile() {
         executeCom+="$name "
         executeCom+="$linkerList"
 
-        "./$executeCom"
+        "$executeCom"
+	"./$name"
         exit 0
 }
 
