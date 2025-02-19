@@ -120,8 +120,10 @@ elif [ $t_flag -eq 1 ]; then
 	echo "-----"
 	testFile "$t_arg"
 elif [ $h_flag -eq 1 ]; then
+        echo "---------------------------------------------------------"
         echo "Use -c [PROJECTNAME] to create a template file"
         echo "Configure this template to specifications with C project"
         echo "You can test this file using -h [PROJECTNAME]"
+        echo "---------------------------------------------------------"
 fi
 
