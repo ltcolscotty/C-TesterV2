@@ -1,0 +1,12 @@
+[NAME]
+TesterFile1
+[FILES]
+main.c
+anotherfile.c
+[LIBRARYLINKERS]
+-lm
+[END]
+[COMMENTS]
+- Primary file MUST come first in [FILES]
+- [NAME] will be the direct name of the executable
+
