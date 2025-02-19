@@ -9,41 +9,45 @@ Modes:
 '
 
 testFile() {
-	
-	local file="$1"
-	local mode="None"
-	local executeCom="gcc "
 
-	local name=""
-	local fileList=""
-	local linkerList=""
+        local file="$1"
+        local lengthFN="${#file}"
+        local mode="None"
+        local executeCom="gcc "
+        local name=""
+        local fileList=""
+        local linkerList=""
 
-	while IFS= read -r line; do
+        if [ $lengthFN -lt 4 ] || [ "${file: -4}" != ".txt" ]; then
+                file+=".txt"
+        fi
 
-		if [ "${line:0:1}" = "[" ]; then
-			local length="${#line}"
-			mode="${line:1:$((length-2))}"
-		elif [	"$mode" = "NAME" ]; then
-			name="$line"
-		elif [ "$mode" = "FILES" ]; then
-			fileList+="$line "
-		elif [ "$mode" = "LIBRARYLINKERS" ]; then
-			linkerList+="$line "
-		elif [ "$mode" = "END" ] || [ "$mode" = "COMMENTS"  ]; then
-			break
-		else
-			echo "Unexpected configuration: MODE -> $mode"
-			exit 1
-		fi
-	done < "$file"
+        while IFS= read -r line; do
 
-	executeCom+="$fileList"
-	executeCom+="-o "
-	executeCom+="$name "
-	executeCom+="$linkerList"
+                if [ "${line:0:1}" = "[" ]; then
+                        local length="${#line}"
+                        mode="${line:1:$((length-2))}"
+                elif [  "$mode" = "NAME" ]; then
+                        name="$line"
+                elif [ "$mode" = "FILES" ]; then
+                        fileList+="$line "
+                elif [ "$mode" = "LIBRARYLINKERS" ]; then
+                        linkerList+="$line "
+                elif [ "$mode" = "END" ] || [ "$mode" = "COMMENTS"  ]; then
+                        break
+                else
+                        echo "Unexpected configuration: MODE -> $mode"
+                        exit 1
+                fi
+        done < "$file"
 
-	"./$executeCom"
-	exit 0
+        executeCom+="$fileList"
+        executeCom+="-o "
+        executeCom+="$name "
+        executeCom+="$linkerList"
+
+        "./$executeCom"
+        exit 0
 }
 
 writeTemplate() {
