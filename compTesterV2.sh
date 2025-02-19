@@ -68,8 +68,9 @@ c_arg=""
 t_arg=""
 c_flag=0
 t_flag=0
+h_flag=0
 
-while getopts ":C:t:" opt; do
+while getopts ":c:t:h:" opt; do
 	case $opt in
 		c)
 			c_flag=1
@@ -79,6 +80,9 @@ while getopts ":C:t:" opt; do
 			t_flag=1
 			t_arg="$OPTARG"
 			;;
+   		h)
+                        h_flag=1
+                        ;;
 		:)
 			echo "Error: -$OPTARG requires an argument" >&2
 			exit 1
@@ -100,9 +104,9 @@ if [ $# -gt 0 ]; then
 fi
 
 # Check for one exclusive flag
-if [ $((c_flag + t_flag)) -ne 1 ]; then
-	echo "Error: Specify -c OR -t, not BOTH or NONE" >&2
-	exit 1
+if [ $((c_flag + t_flag + h_flag)) -ne 1 ]; then
+        echo "Error: Specify -c OR -t OR -h, not BOTH or NONE" >&2
+        exit 1
 fi
 
 if [ $c_flag -eq 1 ]; then
@@ -115,5 +119,9 @@ elif [ $t_flag -eq 1 ]; then
 	echo "TESTING: $t_arg"
 	echo "-----"
 	testFile "$t_arg"
+elif [ $h_flag -eq 1 ]; then
+        echo "Use -c [PROJECTNAME] to create a template file"
+        echo "Configure this template to specifications with C project"
+        echo "You can test this file using -h [PROJECTNAME]"
 fi
 
