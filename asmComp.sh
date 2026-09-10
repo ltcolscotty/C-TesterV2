@@ -1,44 +1,34 @@
 #!/bin/bash
 
-if [ -z "$1" ]; then
-    echo "Error: Base filename argument is missing."
-    echo "Usage: $0 <filename_without_extension>"
+set -e
+
+if [ -z "${1:-}" ]; then
+    echo "Error: Base filename argument is missing." >&2
+    echo "Usage: $0 <Base_filename> [output_name]" >&2
     exit 1
 fi
 
-fileName="$1"
-
-if [[ "$fileName" != *".s" ]]; then
-    # Case where no .s
-    fileNameS="${fileName}.s"
-    fileNameO="${fileName}.o"
+if [[ "$1" == *.s ]]; then
+    file_s="$1"
+    base_name="${1%.s}"
 else
-    # case where .s
-    fileNameS="$1"
-    fileNameO="${fileName:0:-2}.o"
-    fileName="${fileName:0:-2}"
+    file_s="$1.s"
+    base_name="$1"
 fi
 
-if [ ! -f "$fileNameS" ]; then
-    echo "Error: Source file $fileNameS not found."
+file_o="${base_name}.o"
+output_name="${2:-$base_name}"
+
+if [ ! -f "$file_s" ]; then
+    echo "Error: Source file '$file_s' not found." >&2
     exit 1
 fi
 
-first_line=$(head -n 1 "$fileNameS")
+cat <(echo ".intel_syntax noprefix") "$file_s" | as -o "$file_o"
 
-if [ "$first_line" != '.intel_syntax noprefix' ]; then
-    sed -i '1i .intel_syntax noprefix' "$fileNameS"
-fi
-
-as -o "$fileNameO" "$fileNameS"
-
-outputName="${2:-$fileName}"
-ld -o "$outputName" "$fileNameO"
-
-if [ $? -eq 0 ]; then
-    echo "Success: Compiled executable '$outputName' created."
-    exit 0
+if ld -o "$output_name" "$file_o"; then
+    echo "Success: Compiled executable '$output_name' created."
 else
-    echo "Error: Linking failed."
+    echo "Error: Linking failed." >&2
     exit 1
 fi
